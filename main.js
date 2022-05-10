@@ -35,19 +35,78 @@ var gridPlane = new THREE.PlaneGeometry(10,10);
 var gridMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
 
 // MESHES AND ADJUSTMENTS //
-for (countColumns = 0; countColumns < gridColumns; countColumns++){
-for (countRows = 0; countRows < gridRows; countRows=countRows++){
-    var object = new THREE.Mesh(gridPlane, gridMaterial);
-    object.position.set(countRows,countColumns,1);
-    scene.add(object);
-    clear(object);
-}
-}
+// for (countColumns = 0; countColumns < gridColumns; countColumns++){
+// for (countRows = 0; countRows < gridRows; countRows=countRows++){
+//     var object = new THREE.Mesh(gridPlane, gridMaterial);
+//     object.position.set(countRows,countColumns,1);
+//     scene.add(object);
+//     clear(object);
+// }
+// }
 
 
 // ADDING OBJECTS TO SCENE //
 
+// // geometry
+// var geometry = new THREE.PlaneGeometry();
+// geometry.vertices.push( new THREE.Vector3( 0, 5, 0 ) );
+// geometry.vertices.push( new THREE.Vector3( 5, -5, -2 ) );
+// geometry.vertices.push( new THREE.Vector3( -5, -5, 2 ) );
+// geometry.vertices.push( new THREE.Vector3( 0, 5, 0 ) ); // close the loop
 
+// const size = 10;
+// const divisions = 10;
+
+// const gridHelper = new THREE.GridHelper( size, divisions );
+// gridHelper.position(0,0,0)
+// scene.add( gridHelper );
+
+// // material
+// var material = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 5 } );
+
+// // line
+// var line = new THREE.Line( geometry, material );
+// scene.add( line );
+class GridHelper extends LineSegments {
+
+	constructor( size = 10, divisions = 10, color1 = 0x444444, color2 = 0x888888 ) {
+
+		color1 = new Color( color1 );
+		color2 = new Color( color2 );
+
+		const center = divisions / 2;
+		const step = size / divisions;
+		const halfSize = size / 2;
+
+		const vertices = [], colors = [];
+
+		for ( let i = 0, j = 0, k = - halfSize; i <= divisions; i ++, k += step ) {
+
+			vertices.push( - halfSize, 0, k, halfSize, 0, k );
+			vertices.push( k, 0, - halfSize, k, 0, halfSize );
+
+			const color = i === center ? color1 : color2;
+
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+
+		}
+
+		const geometry = new BufferGeometry();
+		geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		geometry.setAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+
+		const material = new LineBasicMaterial( { vertexColors: true, toneMapped: false } );
+
+		super( geometry, material );
+
+		this.type = 'GridHelper';
+
+	}
+
+}
 
 // LIGHTING //
 var ambLight = new THREE.AmbientLight(0xFD4AFA);
