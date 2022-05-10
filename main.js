@@ -28,6 +28,7 @@ orbit.update();
 var battleshipLength = 2;
 var xoffset = 0;
 var zoffset = 0.5;
+var battleshipRotation = Math.PI/2;
 
 
 
@@ -86,7 +87,7 @@ window.addEventListener('mousemove', function(e) {
 });
 
 const sphereMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.4, 4, 2),
+    new THREE.BoxGeometry(0.4, 4, 2),
     new THREE.MeshBasicMaterial({
         wireframe: true,
         color: 0xFFEA00
@@ -106,6 +107,7 @@ window.addEventListener('mousedown', function() {
             if(intersect.object.name === 'ground') {
                 const sphereClone = sphereMesh.clone();
                 sphereClone.position.copy(highlightMesh.position);
+				sphereClone.rotation.y = battleshipRotation;
                 scene.add(sphereClone);
                 objects.push(sphereClone);
                 highlightMesh.material.color.setHex(0xFF0000);
@@ -118,9 +120,9 @@ window.addEventListener('mousedown', function() {
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
     objects.forEach(function(object) {
-        object.rotation.x = time / 1000;
-        object.rotation.z = time / 1000;
-        object.position.y = 0.5 + 0.5 * Math.abs(Math.sin(time / 1000));
+        // object.rotation.x = time / 1000;
+        // object.rotation.z = time / 1000;
+        // object.position.y = 0.5 + 0.5 * Math.abs(Math.sin(time / 1000));
     });
     renderer.render(scene, camera);
 
