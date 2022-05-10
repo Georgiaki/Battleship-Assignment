@@ -1,4 +1,4 @@
-// GLOBAL VARIABLES  //
+/*// GLOBAL VARIABLES  //
 const gridRows = 4;
 var countRows = 0;
 const gridColumns = 4;
@@ -15,7 +15,7 @@ camera.lookAt (new THREE.Vector3(0,0,0));
 cameraCenter.x = camera.position.x;
 cameraCenter.y = camera.position.y;
 
-// SCENE AND EVENT LISTENERS// 
+// SCENE AND EVENT LISTENERS//
 var scene = new THREE.Scene();
 document.addEventListener('mousemove', mouseMove, false);
 window.addEventListener('resize', windowResize, false);
@@ -121,12 +121,12 @@ scene.add(pointLight);
 /----------------------------------------------------------------/
 // MESH FUNCTIONS //
 
-function test(){}; // placeholder 
+function test(){}; // placeholder
 
 
 
 /-----------------------------------------------------------------------------/
-// SYSTEM FUNCTIONS // 
+// SYSTEM FUNCTIONS //
 
 // fix window when resized
 function windowResize ()
@@ -159,7 +159,4 @@ function animate() {
 }
 
 animate();
-
-
-
-
+*/
