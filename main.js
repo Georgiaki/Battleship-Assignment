@@ -19,7 +19,6 @@ const camera = new THREE.PerspectiveCamera(
 
 const orbit = new THREE.OrbitControls(camera, renderer.domElement);
 
-
 camera.position.set(10, 15, -22);
 
 orbit.update();
@@ -29,12 +28,17 @@ var battleshipLength = 2;
 var xoffset = 0;
 var zoffset = 0.5;
 var battleshipRotation = Math.PI/2;
-
+var ship2remain = 1;
+var ship3remain = 2;
+var ship4remain = 1;
+var ship5remain = 1;
+const remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
+var shipType = 0;
 
 
 
 const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
+    new THREE.PlaneGeometry(10, 10),
     new THREE.MeshBasicMaterial({
         side: THREE.DoubleSide,
         visible: false
@@ -44,7 +48,7 @@ planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 planeMesh.name = 'ground';
 
-const grid = new THREE.GridHelper(20, 20);
+const grid = new THREE.GridHelper(10, 10);
 scene.add(grid);
 
 const highlightMesh = new THREE.Mesh(
@@ -54,7 +58,7 @@ const highlightMesh = new THREE.Mesh(
         transparent: true
     })
 );
-highlightMesh.rotateX(-Math.PI / 2);
+highlightMesh.rotateX(battleshipRotation);
 highlightMesh.position.set(0.5, 0, 0.5);
 scene.add(highlightMesh);
 
@@ -62,6 +66,54 @@ scene.add(highlightMesh);
 const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 let intersects;
+
+// key presses
+var rotationCount = 0;
+document.addEventListener("keydown", onDocumentKeyDown, false);
+function onDocumentKeyDown(e){
+    var keyCode = e.which
+    switch(keyCode){
+        case 82: // letter 'r' for rotating
+            rotationCount++;
+            console.log(rotationCount);
+        break;
+
+        case 50: // number '2' for battleship select
+            shipType = 0;
+            battleshipLength = 2;
+            xoffset = 0;
+            zoffset = 0.5;
+            console.log(remainingArray);
+        break;
+
+        case 51: // number '3' for battleship select
+            shipType = 1;
+            battleshipLength = 3;
+            xoffset = 0.5;
+            zoffset = 0.5;
+            console.log(remainingArray)
+        break;
+
+        case 52: // number '4' for battleship select
+            shipType = 2;
+            battleshipLength = 4;
+            xoffset = 0;
+            zoffset = 0.5;
+            console.log(remainingArray)
+        break;
+
+        case 53: // number '5' for battleship select
+            shipType = 3;
+            battleshipLength = 5;
+            xoffset = 0.5;
+            zoffset = 0.5;
+            console.log(remainingArray)
+        break;
+    }
+
+};
+
+
 
 window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -72,7 +124,8 @@ window.addEventListener('mousemove', function(e) {
         if(intersect.object.name === 'ground') {
             const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
             highlightMesh.position.set(highlightPos.x+xoffset, 0, highlightPos.z+zoffset);
-
+            console.log(highlightMesh.position)
+            highlightMesh.rotateX(battleshipRotation);
             const objectExist = objects.find(function(object) {
                 return (object.position.x === highlightMesh.position.x)
                 && (object.position.z === highlightMesh.position.z)
@@ -105,15 +158,23 @@ window.addEventListener('mousedown', function() {
     if(!objectExist) {
         intersects.forEach(function(intersect) {
             if(intersect.object.name === 'ground') {
+
+                if(remainingArray[shipType] > 0){5
                 const sphereClone = sphereMesh.clone();
                 sphereClone.position.copy(highlightMesh.position);
 				sphereClone.rotation.y = battleshipRotation;
                 scene.add(sphereClone);
                 objects.push(sphereClone);
                 highlightMesh.material.color.setHex(0xFF0000);
+                    remainingArray[shipType] = remainingArray[shipType] - 1;
+                };
             }
+
+
+
         });
     }
+    
     console.log(scene.children.length);
 });
 
@@ -129,6 +190,44 @@ function animate(time) {
 
 
 
+
+
+
+
+
+
+
+    //battleship select
+    /*
+    switch (battleshipLength) {
+        case 2:
+            xoffset = 0;
+            zoffset = 0.5;
+          break;
+    
+        case 3:
+            xoffset = 0.5;
+            zoffset = 0.5;
+          break;
+    
+        case 4:
+            xoffset = 0;
+            zoffset = 0.5;
+          break;
+    
+        case 5:
+            xoffset = 0.5;
+            zoffset = 0.5;
+          break;
+      };
+    */
+    //rotation toggle
+    if(rotationCount % 2 == 0){
+        battleshipRotation = 0;
+        
+      }else{
+        battleshipRotation = Math.PI/2;
+      };
 }
 
 renderer.setAnimationLoop(animate);
@@ -143,27 +242,9 @@ window.addEventListener('resize', function() {
 const gui = new GUI();
 gui.add(highlightMesh.scale, 'x', 1, 5);
 
-switch (battleshipLength) {
-	case 2:
-		xoffset = 0;
-		zoffset = 0.5;
-	  break;
 
-	case 3:
-		xoffset = 0.5;
-		zoffset = 0.5;
-	  break;
 
-	case 4:
-		xoffset = 0;
-		zoffset = 0.5;
-	  break;
 
-	case 5:
-		xoffset = 0.5;
-		zoffset = 0.5;
-	  break;
-  };
 
 
 
