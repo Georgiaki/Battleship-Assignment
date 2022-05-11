@@ -2,6 +2,10 @@
 //import {OrbitControls} from '/js/OrbitControls.js';
 import {GUI} from './js/dat.gui.module.js'
 
+
+const gridX = 10;
+const gridY = 10;
+
 const renderer = new THREE.WebGLRenderer();
 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -38,7 +42,7 @@ var shipType = 0;
 
 
 const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(gridX, gridY),
     new THREE.MeshBasicMaterial({
         side: THREE.DoubleSide,
         visible: false
@@ -48,7 +52,7 @@ planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 planeMesh.name = 'ground';
 
-const grid = new THREE.GridHelper(10, 10);
+const grid = new THREE.GridHelper(gridX, gridY);
 scene.add(grid);
 
 const highlightMesh = new THREE.Mesh(
@@ -81,6 +85,7 @@ function onDocumentKeyDown(e){
         case 50: // number '2' for battleship select
             shipType = 0;
             battleshipLength = 2;
+            highlightMesh.geometry.width = 2;
             xoffset = 0;
             zoffset = 0.5;
             console.log(remainingArray);
@@ -89,6 +94,7 @@ function onDocumentKeyDown(e){
         case 51: // number '3' for battleship select
             shipType = 1;
             battleshipLength = 3;
+            highlightMesh.geometry.width = 3;
             xoffset = 0.5;
             zoffset = 0.5;
             console.log(remainingArray)
@@ -97,6 +103,7 @@ function onDocumentKeyDown(e){
         case 52: // number '4' for battleship select
             shipType = 2;
             battleshipLength = 4;
+            highlightMesh.geometry.width = 4;
             xoffset = 0;
             zoffset = 0.5;
             console.log(remainingArray)
@@ -105,6 +112,7 @@ function onDocumentKeyDown(e){
         case 53: // number '5' for battleship select
             shipType = 3;
             battleshipLength = 5;
+            highlightMesh.geometry.width = 5;
             xoffset = 0.5;
             zoffset = 0.5;
             console.log(remainingArray)
@@ -123,8 +131,8 @@ window.addEventListener('mousemove', function(e) {
     intersects.forEach(function(intersect) {
         if(intersect.object.name === 'ground') {
             const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-            highlightMesh.position.set(highlightPos.x+xoffset, 0, highlightPos.z+zoffset);
-            console.log(highlightMesh.position)
+            highlightMesh.position.set(highlightPos.x + xoffset, 0, highlightPos.z + zoffset);
+            //console.log(highlightMesh.position)
             highlightMesh.rotateX(battleshipRotation);
             const objectExist = objects.find(function(object) {
                 return (object.position.x === highlightMesh.position.x)
@@ -163,7 +171,19 @@ window.addEventListener('mousedown', function() {
                 const sphereClone = sphereMesh.clone();
                 sphereClone.position.copy(highlightMesh.position);
 				sphereClone.rotation.y = battleshipRotation;
+                const placement = new THREE.Mesh(
+                    new THREE.PlaneGeometry(battleshipLength, 1),
+                    new THREE.MeshBasicMaterial({
+                        side: THREE.DoubleSide,
+                        transparent: true
+                    })
+                );
+                placement.rotateX(Math.PI/2);
+                placement.position.copy(highlightMesh.position);
+                placement.material.color.setHex(0x00FFFF);
+                scene.add(placement);
                 scene.add(sphereClone);
+                objects.push(placement);
                 objects.push(sphereClone);
                 highlightMesh.material.color.setHex(0xFF0000);
                     remainingArray[shipType] = remainingArray[shipType] - 1;
@@ -180,6 +200,8 @@ window.addEventListener('mousedown', function() {
 
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
+    highlightMesh.geometry.scale = battleshipLength;
+
     objects.forEach(function(object) {
         // object.rotation.x = time / 1000;
         // object.rotation.z = time / 1000;
@@ -222,11 +244,17 @@ function animate(time) {
       };
     */
     //rotation toggle
+    var temp;
     if(rotationCount % 2 == 0){
         battleshipRotation = 0;
-        
-      }else{
+        temp = highlightMesh.geometry.width;
+        highlightMesh.geometry.width = highlightMesh.geometry.height;
+        highlightMesh.geometry.height = temp;
+        }else{
         battleshipRotation = Math.PI/2;
+        temp = highlightMesh.geometry.height;
+        highlightMesh.geometry.height = highlightMesh.geometry.width;
+        highlightMesh.geometry.width = temp;
       };
 }
 
