@@ -187,6 +187,9 @@ window.addEventListener('mousedown', function() {
                 objects.push(sphereClone);
                 highlightMesh.material.color.setHex(0xFF0000);
                     remainingArray[shipType] = remainingArray[shipType] - 1;
+                }else{
+                    console.log("No ships remaining of this type")
+
                 };
             }
 
@@ -201,7 +204,7 @@ window.addEventListener('mousedown', function() {
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
     highlightMesh.geometry.scale = battleshipLength;
-
+    highlightMesh.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, 25, 0 ) )
     objects.forEach(function(object) {
         // object.rotation.x = time / 1000;
         // object.rotation.z = time / 1000;
