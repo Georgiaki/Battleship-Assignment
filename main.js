@@ -1,18 +1,12 @@
+import { GUI } from './js/dat.gui.module.js'
 
-//IMPORTING
-import * as THREE from './js/three.module';
-import {OrbitControls} from '/js/OrbitControls';
-import {GUI} from './js/dat.gui.module'
-
-<<<<<<< HEAD
 
 //GLOBAL CONSTS
 const gridX = 10;
 const gridY = 10;
 
 //RENDERING + SCENE
-=======
->>>>>>> parent of 691a886 (dynamic grid size and displaying placed grids, needs logic to block input)
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -20,7 +14,7 @@ const scene = new THREE.Scene();
 
 //CAMERA
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-const orbit = new OrbitControls(camera, renderer.domElement);
+const orbit = new THREE.OrbitControls(camera, renderer.domElement);
 camera.position.set(10, 15, -22);
 orbit.update();
 
@@ -39,33 +33,16 @@ var rotationCount = 0;
 
 
 // INVISIBLE PLANE + GRID
-const planeMesh = new THREE.Mesh(
-<<<<<<< HEAD
-    new THREE.PlaneGeometry(gridX, gridY),
-    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, visible: false}));
-planeMesh.rotateX(-Math.PI / 2);
-scene.add(planeMesh);
-planeMesh.name = 'ground';
-const grid = new THREE.GridHelper(gridX, gridY);
-=======
-    new THREE.PlaneGeometry(10, 10),
-    new THREE.MeshBasicMaterial({
-        side: THREE.DoubleSide,
-        visible: false
-    })
-);
+const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(10, 10), new THREE.MeshBasicMaterial({side: THREE.DoubleSide,visible: false}));
 planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 planeMesh.name = 'ground';
 
 const grid = new THREE.GridHelper(10, 10);
->>>>>>> parent of 691a886 (dynamic grid size and displaying placed grids, needs logic to block input)
 scene.add(grid);
 
 // HIGHLIGHT MESH
-const highlightMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(battleshipLength, 1),
-    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
+const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(battleshipRotation);
 scene.add(highlightMesh);
 
@@ -130,7 +107,6 @@ window.addEventListener('mousemove', function(e) {
         if(intersect.object.name === 'ground') {
             const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
             highlightMesh.position.set(highlightPos.x+xoffset, 0, highlightPos.z+zoffset);
-            console.log(highlightMesh.position)
             highlightMesh.rotateX(battleshipRotation);
             const objectExist = objects.find(function(object) {
                 return (object.position.x === highlightMesh.position.x)
@@ -171,7 +147,6 @@ function rotate(){
         highlightMesh.rotation.z = Math.PI / 2;
         }
 };
-///test
 
 const objects = [];
 
@@ -206,10 +181,6 @@ window.addEventListener('mousedown', function() {
 
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
-<<<<<<< HEAD
-    highlightMesh.geometry.scale = battleshipLength;
-=======
->>>>>>> parent of 691a886 (dynamic grid size and displaying placed grids, needs logic to block input)
     objects.forEach(function(object) {
         // object.rotation.x = time / 1000;
         // object.rotation.z = time / 1000;
