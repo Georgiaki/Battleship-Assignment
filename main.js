@@ -50,8 +50,6 @@ scene.add(grid);
 const highlightMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(battleshipLength, 1),
     new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
-highlightMesh.rotateX(battleshipRotation);
-scene.add(highlightMesh);
 
 
 const mousePosition = new THREE.Vector2();
@@ -107,26 +105,6 @@ function onDocumentKeyDown(e){
 
 };
 
-function rotate(){
-    rotationCount++;
-    if(rotationCount % 2 == 0){
-        battleshipRotation = 0;
-        xoffset = 0;
-        zoffset=0.5;
-        console.log("rotate A");
-        //highlightMesh.position.y = 0.5;
-        //highlightMesh.position.z = 0.5;
-        highlightMesh.rotation.z = 0;
-        }else{
-        battleshipRotation = Math.PI/2;
-        xoffset = 0.5;
-        zoffset=0;
-        console.log("rotate B");
-        highlightMesh.rotation.z = Math.PI / 2;
-        }
-};
-///test
-
 
 // MOUSE MOVE EVENT
 window.addEventListener('mousemove', function(e) {
@@ -160,6 +138,26 @@ const sphereMesh = new THREE.Mesh(
         color: 0xFFEA00
     })
 );
+
+function rotate(){
+    rotationCount++;
+    if(rotationCount % 2 == 0){
+        battleshipRotation = 0;
+        xoffset = 0;
+        zoffset=0.5;
+        console.log("rotate A");
+        //highlightMesh.position.y = 0.5;
+        //highlightMesh.position.z = 0.5;
+        highlightMesh.rotation.z = 0;
+        }else{
+        battleshipRotation = Math.PI/2;
+        xoffset = 0.5;
+        zoffset=0;
+        console.log("rotate B");
+        highlightMesh.rotation.z = Math.PI / 2;
+        }
+};
+///test
 
 const objects = [];
 
