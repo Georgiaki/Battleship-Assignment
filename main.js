@@ -1,33 +1,26 @@
+
+//IMPORTING
 //import * as THREE from '/js/three.js';
 //import {OrbitControls} from '/js/OrbitControls.js';
 import {GUI} from './js/dat.gui.module.js'
 
-
+//GLOBAL CONSTS
 const gridX = 10;
 const gridY = 10;
 
+//RENDERING + SCENE
 const renderer = new THREE.WebGLRenderer();
-
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 document.body.appendChild(renderer.domElement);
-
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-);
-
+//CAMERA
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 const orbit = new THREE.OrbitControls(camera, renderer.domElement);
-
 camera.position.set(10, 15, -22);
-
 orbit.update();
 
-// select ship size
+// INIT VARIABLES 
 var battleshipLength = 2;
 var xoffset = 0;
 var zoffset = 0.5;
@@ -40,30 +33,21 @@ const remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
 var shipType = 0;
 
 
-
+// INVISIBLE PLANE + GRID
 const planeMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(gridX, gridY),
-    new THREE.MeshBasicMaterial({
-        side: THREE.DoubleSide,
-        visible: false
-    })
-);
+    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, visible: false}));
 planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 planeMesh.name = 'ground';
-
 const grid = new THREE.GridHelper(gridX, gridY);
 scene.add(grid);
 
+// HIGHLIGHT MESH
 const highlightMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(battleshipLength, 1),
-    new THREE.MeshBasicMaterial({
-        side: THREE.DoubleSide,
-        transparent: true
-    })
-);
+    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(battleshipRotation);
-highlightMesh.position.set(0.5, 0, 0.5);
 scene.add(highlightMesh);
 
 
