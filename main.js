@@ -1,9 +1,10 @@
 
 //IMPORTING
+console.log("error");
 //import * as THREE from '/js/three.js';
 //import {OrbitControls} from '/js/OrbitControls.js';
 import {GUI} from './js/dat.gui.module.js'
-import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
+import { PLYLoader } from './js/PLYLoader.js'
 
 
 //GLOBAL CONSTS
