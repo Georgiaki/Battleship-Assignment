@@ -137,7 +137,7 @@ function rotate(){
         highlightMesh.rotation.z = Math.PI / 2;
         }
 };
-
+///test
 window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
