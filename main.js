@@ -52,6 +52,7 @@ const highlightMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(battleshipLength, 1),
     new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(battleshipRotation);
+highlightMesh.position.set(0.5, 0, 0.5);
 scene.add(highlightMesh);
 
 
@@ -108,7 +109,7 @@ function onDocumentKeyDown(e){
 
 };
 
-// MOUSE MOVE EVENT
+
 window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
