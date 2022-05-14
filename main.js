@@ -1,8 +1,8 @@
 
 //IMPORTING
-//import * as THREE from '/js/three.js';
-//import {OrbitControls} from '/js/OrbitControls.js';
-import {GUI} from './js/dat.gui.module.js'
+import * as THREE from './js/three.module';
+import {OrbitControls} from '/js/OrbitControls';
+import {GUI} from './js/dat.gui.module'
 
 
 //GLOBAL CONSTS
@@ -17,7 +17,7 @@ const scene = new THREE.Scene();
 
 //CAMERA
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-const orbit = new THREE.OrbitControls(camera, renderer.domElement);
+const orbit = new OrbitControls(camera, renderer.domElement);
 camera.position.set(10, 15, -22);
 orbit.update();
 
@@ -50,7 +50,6 @@ const highlightMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(battleshipLength, 1),
     new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(battleshipRotation);
-highlightMesh.position.set(0.5, 0, 0.5);
 scene.add(highlightMesh);
 
 
@@ -65,6 +64,7 @@ function onDocumentKeyDown(e){
     switch(keyCode){
         case 82: // letter 'r' for rotating
             rotationCount++;
+            rotate();
             console.log(rotationCount);
         break;
 
@@ -211,42 +211,7 @@ function animate(time) {
         // object.rotation.z = time / 1000;
         // object.position.y = 0.5 + 0.5 * Math.abs(Math.sin(time / 1000));
     });
-    renderer.render(scene, camera);
-
-
-
-
-
-
-
-
-
-
-
-    //battleship select
-    /*
-    switch (battleshipLength) {
-        case 2:
-            xoffset = 0;
-            zoffset = 0.5;
-          break;
-    
-        case 3:
-            xoffset = 0.5;
-            zoffset = 0.5;
-          break;
-    
-        case 4:
-            xoffset = 0;
-            zoffset = 0.5;
-          break;
-    
-        case 5:
-            xoffset = 0.5;
-            zoffset = 0.5;
-          break;
-      };
-    */
+    renderer.render(scene, camera)
     //rotation toggle
     var temp;
     if(rotationCount % 2 == 0){
