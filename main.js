@@ -35,6 +35,7 @@ var ship3remain = 2;
 var ship4remain = 1;
 var ship5remain = 1;
 var shipType = 0;
+var ship3switch = 0;
 var rotationCount = 0;
 var allowed = true;
 var loadedMesh = new THREE.Mesh();
@@ -67,7 +68,7 @@ const raycaster = new THREE.Raycaster();
 let intersects;
 
 // HIGHLIGHT MESH
-const highlightMesh = new THREE.Mesh( new THREE.BoxGeometry(battleshipLength, -1, 1), 
+const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), 
 new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(-battleshipRotation);
 scene.add(highlightMesh);
@@ -172,26 +173,51 @@ function battleshipCruiser(){
     }
 
     if(remainingArray[shipType] > 0){
-        plyloader.load(
-            'models/battleship2.ply',
-            function (geometry) {
-                geometry.computeVertexNormals();
-                const mesh = new THREE.Mesh(geometry, shipMaterial)
-                mesh.scale.x = 0.07;
-                mesh.scale.y = 0.08;
-                mesh.scale.z = 0.08;
-                loadedMesh = mesh;
-            },
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-            },
-            (error) => {
-                console.log(error)
-            }
-        );
+        if(ship3switch % 2 == 0){
+            plyloader.load(
+                'models/cruiser.ply',
+                function (geometry) {
+                    geometry.computeVertexNormals();
+                    const mesh = new THREE.Mesh(geometry, shipMaterial)
+                    mesh.scale.x = 0.05;
+                    mesh.scale.y = 0.08;
+                    mesh.scale.z = 0.08;
+                    loadedMesh = mesh;
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+                },
+                (error) => {
+                    console.log(error)
+                }
+            );
+        }else{
+            plyloader.load(
+                'models/submarine.ply',
+                function (geometry2) {
+                    geometry2.computeVertexNormals();
+                    const mesh2 = new THREE.Mesh(geometry2, shipMaterial)
+                    mesh2.scale.x = 0.07;
+                    mesh2.scale.y = 0.07;
+                    mesh2.scale.z = 0.07;
+                    loadedMesh = mesh2;
+                    loadedMesh.rotateY(Math.PI/4);
+
+                    //loadedMesh.rotateX(Math.PI/4);
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+                },
+                (error) => {
+                    console.log(error)
+                }
+            );
+        }
+        ship3switch++;
     }else{
         console.log("You can not place any more ships of this type!")
     }
+
 
 };
 
@@ -318,7 +344,7 @@ window.addEventListener('mousemove', function(e) {
 
         if(intersect.object.name === 'ground') {
             const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-            highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, -0.5, highlightPos.z+zoffset+rzoffset);
+            highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, 0, highlightPos.z+zoffset+rzoffset);
             highlightMesh.material.color.setHex(0xFFFFFF);
             const objectExist = objects.find(function(object) {
             return (object.position.x === highlightMesh.position.x)
@@ -369,7 +395,7 @@ window.addEventListener('mousemove', function(e) {
         intersects.forEach(function(intersect) {
             if(intersect.object.name === 'ground') {
                 if(remainingArray[shipType] > 0 && allowed){
-                    const placement = new THREE.Mesh( new THREE.BoxGeometry(battleshipLength, -1, 1), 
+                    const placement = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), 
                     new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));                    
                     placement.position.copy(highlightMesh.position);
                     //placement.position.set(Math.ceil(highlightMesh.position.x),Math.ceil(highlightMesh.position.y),Math.ceil(highlightMesh.position.z));
@@ -415,6 +441,7 @@ window.addEventListener('mousemove', function(e) {
                     scene.add(shipMesh);
                     shipMesh.position.set(placement.position.x,0.07,placement.position.z);
                     shipMesh.rotation.y = battleshipRotation;
+                    shipMesh.name = 'ship';
                     objects.push(shipMesh);
                     remainingArray[shipType] = remainingArray[shipType] - 1;
                 }else{
@@ -432,7 +459,11 @@ window.addEventListener('mousemove', function(e) {
 //ANIMATE
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
-    //objects.forEach(function(object) {});
+    objects.forEach(function(object) {
+        // if(object.name === 'ship'){
+        //     object.rotation.x = object.rotation.x + time/360 * Math.PI/2;
+        // }
+    });
     renderer.render(scene, camera)
 
     //rotation toggle
