@@ -27,6 +27,8 @@ var xoffset = 0;
 var zoffset = 0.5;
 var rxoffset = 0;
 var rzoffset = 0;
+var xborder = -5;
+var zborder = -5;
 var battleshipRotation = Math.PI/2;
 var ship2remain = 1;
 var ship3remain = 2;
@@ -59,6 +61,7 @@ scene.add(planeMesh);
 planeMesh.name = 'ground';
 const grid = new THREE.GridHelper(gridX, gridY);
 scene.add(grid);
+
 const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 let intersects;
@@ -120,6 +123,8 @@ function onDocumentKeyDown(e){
 function battleshipDestroyer(){
     xoffset = 0;
     zoffset = 0.5;
+    xborder = -5;
+    zborder = -5;
     if(battleshipRotation == 0){
         rxoffset = 0;
         rzoffset = 0;
@@ -156,6 +161,8 @@ function battleshipDestroyer(){
 function battleshipCruiser(){
     xoffset = -0.5;
     zoffset = 0.5;
+    xborder = -4.5;
+    zborder = -4.5;
     if(battleshipRotation == 0){
         rxoffset = 0;
         rzoffset = 0;
@@ -190,9 +197,10 @@ function battleshipCruiser(){
 
 // BATTLESHIP = 4 spaces long
  function battleshipBattleship(){
-
     xoffset = -1;
     zoffset = 0.5;
+    xborder = -4;
+    zborder = -4;
     if(battleshipRotation == 0){
         rxoffset = 0;
         rzoffset = 0;
@@ -229,6 +237,8 @@ function battleshipCruiser(){
 function battleshipCarrier(){
     xoffset = -1.5;
     zoffset = 0.5;
+    xborder = -3.5;
+    zborder = -3.5;
     if(battleshipRotation == 0){
         rxoffset = 0;
         rzoffset = 0;
@@ -301,40 +311,46 @@ window.addEventListener('mousemove', function(e) {
     raycaster.setFromCamera(mousePosition, camera);
     intersects = raycaster.intersectObjects(scene.children);
     intersects.forEach(function(intersect) {
-    if(intersect.object.name === 'placed') {
-            highlightMesh.material.color.setHex(0xFF0000);
-            allowed = false;
-    }
-
-    if(intersect.object.name === 'ground') {
-        allowed = true;
-        const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-        highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, -0.5, highlightPos.z+zoffset+rzoffset);
-        highlightMesh.material.color.setHex(0xFFFFFF);
-        const objectExist = objects.find(function(object) {
-        return (object.position.x === highlightMesh.position.x)
-                && (object.position.z === highlightMesh.position.z)
-            });
-
-            // if(rotationCount % 2 == 0 && highlightMesh.position.x == -5){
-            //    // console.log(highlightMesh.position)
-            //     highlightMesh.material.color.setHex(0xFF0000);
-            //     allowed = false;
-            // }
-            
-            // if(rotationCount % 2 != 0 && highlightMesh.position.z == -5){
-            //    // console.log(highlightMesh.position)
-            //     highlightMesh.material.color.setHex(0xFF0000);
-            //     allowed = false;
-            // }
-
-            if(objectExist){
+        if(intersect.object.name === 'placed') {
                 highlightMesh.material.color.setHex(0xFF0000);
                 allowed = false;
-                console.log("A ship is in the way of placement!");
-            }   
-    }
+        }
+
+        if(intersect.object.name === 'ground') {
+            const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
+            highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, -0.5, highlightPos.z+zoffset+rzoffset);
+            highlightMesh.material.color.setHex(0xFFFFFF);
+            const objectExist = objects.find(function(object) {
+            return (object.position.x === highlightMesh.position.x)
+                    && (object.position.z === highlightMesh.position.z)
+            });
+
+            if(objectExist){
+                    highlightMesh.material.color.setHex(0xFF0000);
+                    allowed = false;
+                    console.log("A ship is in the way of placement!");
+            }
+            
+            if(battleshipRotation == 0){
+                 if(highlightMesh.position.x <= xborder){
+                        allowed = false;
+                 }else{
+                        allowed = true;
+                 }
+             }else{
+                 if(highlightMesh.position.z <= zborder){
+                        allowed = false;
+                 }
+                 else{
+                      allowed = true;
+                  }
+            }
+
+        }
     });
+    if(!allowed){
+        console.log("you cannot place your object here!!!");
+    }
 });
 
 
@@ -365,7 +381,6 @@ window.addEventListener('mousemove', function(e) {
                     var count = 1;
                     var placed = new THREE.Vector3();
                     placed.set(Math.ceil(highlightMesh.position.x),Math.ceil(highlightMesh.position.y),Math.ceil(highlightMesh.position.z));
-                    //placed.copy(placement.position);
                     if(battleshipRotation == 0){
                          while(count < battleshipLength){
                                 console.log(placed);
@@ -387,6 +402,9 @@ window.addEventListener('mousemove', function(e) {
                     scene.add(placement);
                     objects.push(placement);
 
+                    if(allowed){
+
+                    }
                     const shipMesh = loadedMesh.clone();
                     if(playerTurn == 1){
                         shipMesh.material.color.set(0x004cff);
