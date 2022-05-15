@@ -1,12 +1,10 @@
 import { GUI } from './js/dat.gui.module.js'
 
-
 //GLOBAL CONSTS
 const gridX = 10;
 const gridY = 10;
 
 //RENDERING + SCENE
-
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -27,29 +25,30 @@ var ship2remain = 1;
 var ship3remain = 2;
 var ship4remain = 1;
 var ship5remain = 1;
-const remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
+var remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
 var shipType = 0;
 var rotationCount = 0;
+var allowed = true;
 
 
 // INVISIBLE PLANE + GRID
-const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(10, 10), new THREE.MeshBasicMaterial({side: THREE.DoubleSide,visible: false}));
+const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(gridX, gridY), 
+new THREE.MeshBasicMaterial({side: THREE.DoubleSide,visible: false}));
 planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
 planeMesh.name = 'ground';
-
-const grid = new THREE.GridHelper(10, 10);
+const grid = new THREE.GridHelper(gridX, gridY);
 scene.add(grid);
-
-// HIGHLIGHT MESH
-const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
-highlightMesh.rotateX(battleshipRotation);
-scene.add(highlightMesh);
-
-
 const mousePosition = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 let intersects;
+
+// HIGHLIGHT MESH
+const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), 
+new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
+highlightMesh.rotateX(-battleshipRotation);
+scene.add(highlightMesh);
+
 
 //KEY PRESS EVENT
 document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -57,7 +56,6 @@ function onDocumentKeyDown(e){
     var keyCode = e.which
     switch(keyCode){
         case 82: // letter 'r' for rotating
-            rotationCount++;
             rotate();
             console.log(rotationCount);
         break;
@@ -101,23 +99,46 @@ function onDocumentKeyDown(e){
 window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    highlightMesh.scale.x  = battleshipLength/2;
     raycaster.setFromCamera(mousePosition, camera);
     intersects = raycaster.intersectObjects(scene.children);
     intersects.forEach(function(intersect) {
+        if(intersect.object.name === 'placed') {
+            highlightMesh.material.color.setHex(0xFF0000);
+            allowed = false;
+        }
+
         if(intersect.object.name === 'ground') {
+            allowed = true;
             const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-            highlightMesh.position.set(highlightPos.x+xoffset, 0, highlightPos.z+zoffset);
-            highlightMesh.rotateX(battleshipRotation);
+            highlightMesh.position.set(Math.floor(highlightPos.x)+xoffset, 0, Math.floor(highlightPos.z)+zoffset);
+            highlightMesh.material.color.setHex(0xFFFFFF);
             const objectExist = objects.find(function(object) {
-                return (object.position.x === highlightMesh.position.x)
+            return (object.position.x === highlightMesh.position.x)
                 && (object.position.z === highlightMesh.position.z)
             });
 
-            if(!objectExist)
-                highlightMesh.material.color.setHex(0xFFFFFF);
-            else
+            if(rotationCount % 2 == 0 && highlightMesh.position.x == -5){
+                console.log(highlightMesh.position)
                 highlightMesh.material.color.setHex(0xFF0000);
+                allowed = false;
+            }
+            
+            if(rotationCount % 2 != 0 && highlightMesh.position.z == -5){
+                console.log(highlightMesh.position)
+                highlightMesh.material.color.setHex(0xFF0000);
+                allowed = false;
+            }
+
+            if(objectExist){
+           //     highlightMesh.material.color.setHex(0xFFFFFF);
+           // }else{
+                highlightMesh.material.color.setHex(0xFF0000);
+                allowed = false;
+            }   
         }
+        
+
     });
 });
 
@@ -131,9 +152,10 @@ const sphereMesh = new THREE.Mesh(
 
 function rotate(){
     rotationCount++;
+    highlightMesh.position.set(Math.ceil(highlightMesh.x)+xoffset, 0, Math.ceil(highlightMesh.z)+zoffset);
     if(rotationCount % 2 == 0){
         battleshipRotation = 0;
-        xoffset = 0;
+        xoffset=0;
         zoffset=0.5;
         console.log("rotate A");
         //highlightMesh.position.y = 0.5;
@@ -159,14 +181,23 @@ window.addEventListener('mousedown', function() {
     if(!objectExist) {
         intersects.forEach(function(intersect) {
             if(intersect.object.name === 'ground') {
-
-                if(remainingArray[shipType] > 0){5
-                const sphereClone = sphereMesh.clone();
-                sphereClone.position.copy(highlightMesh.position);
-				sphereClone.rotation.y = battleshipRotation;
-                scene.add(sphereClone);
-                objects.push(sphereClone);
-                highlightMesh.material.color.setHex(0xFF0000);
+                if(remainingArray[shipType] > 0 && allowed){
+                    const placement = highlightMesh.clone();
+                    placement.position.copy(highlightMesh.position);
+                    placement.rotation.copy(highlightMesh.rotation);
+                    placement.rotation.y = battleshipRotation;
+                    placement.rotateX(-battleshipRotation);
+                    placement.material.color.setHex(0xFFF000);
+                    placement.name = 'placed'
+                    console.log(placement.position);
+                    scene.add(placement);
+                    objects.push(placement);
+                    const sphereClone = sphereMesh.clone();
+                    sphereClone.position.copy(highlightMesh.position);
+                    sphereClone.rotation.y = battleshipRotation;
+                    scene.add(sphereClone);
+                    objects.push(sphereClone);
+                    highlightMesh.material.color.setHex(0xFF0000);
                     remainingArray[shipType] = remainingArray[shipType] - 1;
                 };
             }
@@ -179,18 +210,15 @@ window.addEventListener('mousedown', function() {
     console.log(scene.children.length);
 });
 
+//ANIMATE
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
-    objects.forEach(function(object) {
-        // object.rotation.x = time / 1000;
-        // object.rotation.z = time / 1000;
-        // object.position.y = 0.5 + 0.5 * Math.abs(Math.sin(time / 1000));
-    });
+    //objects.forEach(function(object) {});
     renderer.render(scene, camera)
+
     //rotation toggle
     if(rotationCount % 2 == 0){
         battleshipRotation = 0;
-        
       }else{
         battleshipRotation = Math.PI/2;
       };
