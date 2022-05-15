@@ -25,6 +25,8 @@ orbit.update();
 var battleshipLength = 2;
 var xoffset = 0;
 var zoffset = 0.5;
+var rxoffset = 0;
+var rzoffset = 0;
 var battleshipRotation = Math.PI/2;
 var ship2remain = 1;
 var ship3remain = 2;
@@ -75,41 +77,33 @@ function onDocumentKeyDown(e){
     switch(keyCode){
         case 82: // letter 'r' for rotating
             rotate();
-            console.log(rotationCount);
+            //console.log(rotationCount);
         break;
 
         case 50: // number '2' for battleship select
             shipType = 0;
             battleshipLength = 2;
-            xoffset = 0;
-            zoffset = 0.5;
-            console.log(remainingArray);
+            battleshipDestroyer();
+            //console.log(remainingArray);
         break;
 
         case 51: // number '3' for battleship select
             shipType = 1;
             battleshipLength = 3;
-            xoffset = 0.5;
-            zoffset = 0.5;
-            console.log(remainingArray)
+            battleshipCruiser();
+            //console.log(remainingArray)
         break;
 
         case 52: // number '4' for battleship select
-        shipType = 2;
-        battleshipLength = 4;
-        if(remainingArray[shipType] > 0){
+            shipType = 2;
+            battleshipLength = 4;
             battleshipBattleship();
-
-        }
         break;
 
         case 53: // number '5' for battleship select
             shipType = 3;
             battleshipLength = 5;
-            if(remainingArray[shipType] > 0){
-                battleshipCarrier();
-
-            }
+            battleshipCarrier();
         break;
 
         case 48: // number '0' for next players placement turn
@@ -122,10 +116,127 @@ function onDocumentKeyDown(e){
 
 };
 
-//5 spaces long
-function battleshipCarrier(){
-    xoffset = 0.5;
+// 2 spaces long
+function battleshipDestroyer(){
+    xoffset = 0;
     zoffset = 0.5;
+    if(battleshipRotation == 0){
+        rxoffset = 0;
+        rzoffset = 0;
+    }else{
+        rxoffset = 0.5;
+        rzoffset = -0.5;
+    }
+
+    if(remainingArray[shipType] > 0){
+        plyloader.load(
+            'models/battleship2.ply',
+            function (geometry) {
+                geometry.computeVertexNormals();
+                const mesh = new THREE.Mesh(geometry, shipMaterial)
+                mesh.scale.x = 0.07;
+                mesh.scale.y = 0.08;
+                mesh.scale.z = 0.08;
+                loadedMesh = mesh;
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+    }else{
+        console.log("You can not place any more ships of this type!")
+    }
+
+};
+
+// CRUISER = 3 spaces long
+function battleshipCruiser(){
+    xoffset = -0.5;
+    zoffset = 0.5;
+    if(battleshipRotation == 0){
+        rxoffset = 0;
+        rzoffset = 0;
+    }else{
+        rxoffset = 1;
+        rzoffset = -1;
+    }
+
+    if(remainingArray[shipType] > 0){
+        plyloader.load(
+            'models/battleship2.ply',
+            function (geometry) {
+                geometry.computeVertexNormals();
+                const mesh = new THREE.Mesh(geometry, shipMaterial)
+                mesh.scale.x = 0.07;
+                mesh.scale.y = 0.08;
+                mesh.scale.z = 0.08;
+                loadedMesh = mesh;
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+    }else{
+        console.log("You can not place any more ships of this type!")
+    }
+
+};
+
+// BATTLESHIP = 4 spaces long
+ function battleshipBattleship(){
+
+    xoffset = -1;
+    zoffset = 0.5;
+    if(battleshipRotation == 0){
+        rxoffset = 0;
+        rzoffset = 0;
+    }else{
+        rxoffset = 1.5;
+        rzoffset = -1.5;
+    }
+    
+    if(remainingArray[shipType] > 0){
+        plyloader.load(
+            'models/battleship2.ply',
+            function (geometry) {
+                geometry.computeVertexNormals();
+                const mesh = new THREE.Mesh(geometry, shipMaterial)
+                mesh.scale.x = 0.07;
+                mesh.scale.y = 0.08;
+                mesh.scale.z = 0.08;
+                loadedMesh = mesh;
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        );
+    }else{
+        console.log("You can not place any more ships of this type!")
+    }
+
+};
+
+// CARRIER = 5 spaces long
+function battleshipCarrier(){
+    xoffset = -1.5;
+    zoffset = 0.5;
+    if(battleshipRotation == 0){
+        rxoffset = 0;
+        rzoffset = 0;
+    }else{
+        rxoffset = 2;
+        rzoffset = -2;
+    }
+
     console.log(remainingArray);
     plyloader.load(
         'models/carrier2.ply',
@@ -146,29 +257,41 @@ function battleshipCarrier(){
     );
 };
 
-// 4 spaces long
- function battleshipBattleship(){
-    xoffset = 0;
-    zoffset = 0.5;
-    plyloader.load(
-        'models/battleship2.ply',
-        function (geometry) {
-            geometry.computeVertexNormals();
-            const mesh = new THREE.Mesh(geometry, shipMaterial)
-            mesh.scale.x = 0.07;
-            mesh.scale.y = 0.08;
-            mesh.scale.z = 0.08;
-            loadedMesh = mesh;
-        },
-        (xhr) => {
-            console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-        },
-        (error) => {
-            console.log(error)
-        }
-    );
-};
+function rotate(){
+    rotationCount++;
+    if(rotationCount % 2 == 0){
+        battleshipRotation = 0;
+        rxoffset = 0;
+        rzoffset = 0;
+        console.log("rotate A");
+        }else{
+            switch(shipType){
+                case 0:
+                    rxoffset = 0.5;
+                    rzoffset = -0.5;
+                break;
 
+                case 1:
+                    rxoffset = 1;
+                    rzoffset = -1;
+                break;
+
+                case 2:
+                    rxoffset = 1.5;
+                    rzoffset = -1.5;
+                break;
+
+                case 3:
+                    rxoffset = 2;
+                    rzoffset = -2;
+                break;
+            }
+        battleshipRotation = Math.PI/2;
+        console.log("rotate B");
+    }
+
+    highlightMesh.rotation.z = battleshipRotation;
+};
 
 
 window.addEventListener('mousemove', function(e) {
@@ -178,65 +301,48 @@ window.addEventListener('mousemove', function(e) {
     raycaster.setFromCamera(mousePosition, camera);
     intersects = raycaster.intersectObjects(scene.children);
     intersects.forEach(function(intersect) {
-        if(intersect.object.name === 'placed') {
+    if(intersect.object.name === 'placed') {
             highlightMesh.material.color.setHex(0xFF0000);
             allowed = false;
-        }
+    }
 
-        if(intersect.object.name === 'ground') {
-            allowed = true;
-            const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-            highlightMesh.position.set(Math.floor(highlightPos.x)+xoffset, -0.5, Math.floor(highlightPos.z)+zoffset);
-            highlightMesh.material.color.setHex(0xFFFFFF);
-            const objectExist = objects.find(function(object) {
-            return (object.position.x === highlightMesh.position.x)
+    if(intersect.object.name === 'ground') {
+        allowed = true;
+        const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
+        highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, -0.5, highlightPos.z+zoffset+rzoffset);
+        highlightMesh.material.color.setHex(0xFFFFFF);
+        const objectExist = objects.find(function(object) {
+        return (object.position.x === highlightMesh.position.x)
                 && (object.position.z === highlightMesh.position.z)
             });
 
-            if(rotationCount % 2 == 0 && highlightMesh.position.x == -5){
-                console.log(highlightMesh.position)
-                highlightMesh.material.color.setHex(0xFF0000);
-                allowed = false;
-            }
+            // if(rotationCount % 2 == 0 && highlightMesh.position.x == -5){
+            //    // console.log(highlightMesh.position)
+            //     highlightMesh.material.color.setHex(0xFF0000);
+            //     allowed = false;
+            // }
             
-            if(rotationCount % 2 != 0 && highlightMesh.position.z == -5){
-                console.log(highlightMesh.position)
-                highlightMesh.material.color.setHex(0xFF0000);
-                allowed = false;
-            }
+            // if(rotationCount % 2 != 0 && highlightMesh.position.z == -5){
+            //    // console.log(highlightMesh.position)
+            //     highlightMesh.material.color.setHex(0xFF0000);
+            //     allowed = false;
+            // }
 
             if(objectExist){
                 highlightMesh.material.color.setHex(0xFF0000);
                 allowed = false;
+                console.log("A ship is in the way of placement!");
             }   
-        }
+    }
     });
 });
 
 
 
-function rotate(){
-    rotationCount++;
-    highlightMesh.position.set(Math.ceil(highlightMesh.x)+xoffset, 0, Math.ceil(highlightMesh.z)+zoffset);
-    if(rotationCount % 2 == 0){
-        battleshipRotation = 0;
-        xoffset=0;
-        zoffset=0.5;
-        console.log("rotate A");
-        //highlightMesh.position.y = 0.5;
-        //highlightMesh.position.z = 0.5;
-        highlightMesh.rotation.z = 0;
-        }else{
-        battleshipRotation = Math.PI/2;
-        xoffset = 0.5;
-        zoffset=0;
-        console.log("rotate B");
-        highlightMesh.rotation.z = Math.PI / 2;
-        }
-};
 
 
 
+// MOUSE CLICK EVENT
  window.addEventListener('mousedown', function() {
      const objectExist = objects.find(function(object) {
          return (object.position.x === highlightMesh.position.x)
@@ -250,29 +356,33 @@ function rotate(){
                     const placement = new THREE.Mesh( new THREE.BoxGeometry(battleshipLength, -1, 1), 
                     new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));                    
                     placement.position.copy(highlightMesh.position);
+                    //placement.position.set(Math.ceil(highlightMesh.position.x),Math.ceil(highlightMesh.position.y),Math.ceil(highlightMesh.position.z));
                     placement.rotation.copy(highlightMesh.rotation);
                     placement.rotation.y = battleshipRotation;
                     placement.rotateX(-battleshipRotation);
                     placement.material.color.setHex(0x00FFFF);
                     placement.name = 'placed'
-                    var count = 0;
-                    var placed = new THREE.Vector3(highlightMesh.position.Vector3);
-          
-
-                    // var x = placement.position.x;
-                    // var z = placement.position.z;
-                    // if(battleshipRotation == 0){
-                    //     while(count < battleshipLength){
-                    //         P1placed.push(placement.position);
-                    //         placx--; 
-                            
-                    //         count++;
-
-                    //     }
-                    // }else{
-
-                    // };
-                    console.log(placed.position);
+                    var count = 1;
+                    var placed = new THREE.Vector3();
+                    placed.set(Math.ceil(highlightMesh.position.x),Math.ceil(highlightMesh.position.y),Math.ceil(highlightMesh.position.z));
+                    //placed.copy(placement.position);
+                    if(battleshipRotation == 0){
+                         while(count < battleshipLength){
+                                console.log(placed);
+                                P1placed.push(placed);
+                                placed.x = placed.x - 1; 
+                                count++;
+                         }
+                    }else{
+                        while(count < battleshipLength){
+                            console.log(placed);
+                            P1placed.push(placed);
+                            placed.z = placed.z - 1; 
+                            count++;
+                         }
+                    }
+                    
+                    console.log(placed);
                     console.log(placement.position);
                     scene.add(placement);
                     objects.push(placement);
@@ -289,6 +399,8 @@ function rotate(){
                     shipMesh.rotation.y = battleshipRotation;
                     objects.push(shipMesh);
                     remainingArray[shipType] = remainingArray[shipType] - 1;
+                }else{
+                    console.log("You can not place any more ships of this type or not allowed to place here!")
                 };
             };
 
@@ -322,4 +434,5 @@ window.addEventListener('resize', function() {
 });
 
 // GUI //
-//gui.add(highlightMesh.scale, 'x', 1, 5);
+gui.add(highlightMesh.scale, 'x', 1, 2.5);
+gui.add(highlightMesh.position, 'x', -5, 5);
