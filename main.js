@@ -23,7 +23,7 @@ const orbit = new THREE.OrbitControls(camera, renderer.domElement);
 camera.position.set(10, 15, -22);
 orbit.update();
 
-// INIT VARIABLES 
+// INIT VARIABLES
 var battleshipLength = 2;
 var xoffset = 0;
 var zoffset = 0.5;
@@ -57,7 +57,7 @@ const shipMaterial = new THREE.MeshMatcapMaterial({
 });
 
 // INVISIBLE PLANE + GRID
-const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(gridX, gridY), 
+const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(gridX, gridY),
 new THREE.MeshBasicMaterial({side: THREE.DoubleSide,visible: false}));
 planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
@@ -70,7 +70,7 @@ const raycaster = new THREE.Raycaster();
 let intersects;
 
 // HIGHLIGHT MESH
-const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), 
+const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1),
 new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(-battleshipRotation);
 scene.add(highlightMesh);
@@ -236,7 +236,7 @@ function battleshipCruiser(){
         rxoffset = 1.5;
         rzoffset = -1.5;
     }
-    
+
     if(remainingArray[shipType] > 0){
         plyloader.load(
             'models/battleship2.ply',
@@ -358,7 +358,7 @@ window.addEventListener('mousemove', function(e) {
                     allowed = false;
                     console.log("A ship is in the way of placement!");
             }
-            
+
             if(battleshipRotation == 0){
                  if(highlightMesh.position.x <= xborder){
                         allowed = false;
@@ -397,8 +397,8 @@ window.addEventListener('mousemove', function(e) {
         intersects.forEach(function(intersect) {
             if(intersect.object.name === 'ground') {
                 if(remainingArray[shipType] > 0 && allowed){
-                    const placement = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1), 
-                    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));                    
+                    const placement = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1),
+                    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
                     placement.position.copy(highlightMesh.position);
                     //placement.position.set(Math.ceil(highlightMesh.position.x),Math.ceil(highlightMesh.position.y),Math.ceil(highlightMesh.position.z));
                     placement.rotation.copy(highlightMesh.rotation);
@@ -413,18 +413,18 @@ window.addEventListener('mousemove', function(e) {
                          while(count < battleshipLength){
                                 console.log(placed);
                                 P1placed.push(placed);
-                                placed.x = placed.x - 1; 
+                                placed.x = placed.x - 1;
                                 count++;
                          }
                     }else{
                         while(count < battleshipLength){
                             console.log(placed);
                             P1placed.push(placed);
-                            placed.z = placed.z - 1; 
+                            placed.z = placed.z - 1;
                             count++;
                          }
                     }
-                    
+
                     console.log(placed);
                     console.log(placement.position);
                     scene.add(placement);
@@ -459,12 +459,12 @@ window.addEventListener('mousemove', function(e) {
 });
 
 let materialArray = [];
-let txeture_Frint = new THREE.TextureLoader().load('./Daylight/Box_Frint.bmp');
-let txeture_Back = new THREE.TextureLoader().load('./Daylight/Box_Back.bmp');
-let txeture_Top = new THREE.TextureLoader().load('./Daylight/Box_Top.bmp');
-let txeture_Bottom = new THREE.TextureLoader().load('./Daylight/Box_Bottom.bmp');
-let txeture_Right = new THREE.TextureLoader().load('./Daylight/Box_Right.bmp');
-let txeture_Left = new THREE.TextureLoader().load('./Daylight/Box_Left.bmp');
+let txeture_Frint = new THREE.TextureLoader().load('./Daylight/Box_Front.png');
+let txeture_Back = new THREE.TextureLoader().load('./Daylight/Box_Back.png');
+let txeture_Top = new THREE.TextureLoader().load('./Daylight/Box_Top.png');
+let txeture_Bottom = new THREE.TextureLoader().load('./Daylight/Box_Bottom.png');
+let txeture_Right = new THREE.TextureLoader().load('./Daylight/Box_Right.png');
+let txeture_Left = new THREE.TextureLoader().load('./Daylight/Box_Left.png');
 
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Frint}));
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Back}));
