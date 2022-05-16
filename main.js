@@ -458,6 +458,29 @@ window.addEventListener('mousemove', function(e) {
     //console.log(scene.children.length);
 });
 
+let materialArray = [];
+let txeture_Frint = new THREE.TextureLoader().load('./Daylight/Box_Frint.bmp');
+let txeture_Back = new THREE.TextureLoader().load('./Daylight/Box_Back.bmp');
+let txeture_Top = new THREE.TextureLoader().load('./Daylight/Box_Top.bmp');
+let txeture_Bottom = new THREE.TextureLoader().load('./Daylight/Box_Bottom.bmp');
+let txeture_Right = new THREE.TextureLoader().load('./Daylight/Box_Right.bmp');
+let txeture_Left = new THREE.TextureLoader().load('./Daylight/Box_Left.bmp');
+
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Frint}));
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Back}));
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Top}));
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Bottom}));
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Right}));
+materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Left}));
+
+for(let i =0; i<6; i++){
+  materialArray[i].side= THREE.BackSide;
+}
+
+let skyboxGeo = new THREE.BoxGeometry(10000,10000,10000);
+let skybox = new THREE.Mesh(skyboxGeo, materialArray);
+scene.add(skybox);
+
 //ANIMATE
 function animate(time) {
     highlightMesh.material.opacity = 1 + Math.sin(time / 120);
