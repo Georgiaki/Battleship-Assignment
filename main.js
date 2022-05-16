@@ -14,7 +14,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 const plyloader = new THREE.PLYLoader();
-//const textureLoader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader();
 const gui = new GUI();
 
 //CAMERA
@@ -458,13 +458,13 @@ window.addEventListener('mousemove', function(e) {
     //console.log(scene.children.length);
 });
 
-let materialArray = [];
+var materialArray = [];
 let txeture_Frint = new THREE.TextureLoader().load('./Daylight/Box_Front.png');
 let txeture_Back = new THREE.TextureLoader().load('./Daylight/Box_Back.png');
 let txeture_Top = new THREE.TextureLoader().load('./Daylight/Box_Top.png');
 let txeture_Bottom = new THREE.TextureLoader().load('./Daylight/Box_Bottom.png');
-let txeture_Right = new THREE.TextureLoader().load('./Daylight/Box_Right.png');
-let txeture_Left = new THREE.TextureLoader().load('./Daylight/Box_Left.png');
+let txeture_Right = new THREE.TextureLoader().load('./Daylight/Box_Left.png');
+let txeture_Left = new THREE.TextureLoader().load('./Daylight/Box_Right.png');
 
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Frint}));
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Back}));
@@ -473,13 +473,16 @@ materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Bottom}));
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Right}));
 materialArray.push(new THREE.MeshBasicMaterial({map:txeture_Left}));
 
-for(let i =0; i<6; i++){
-  materialArray[i].side= THREE.BackSide;
-}
+ for(let i =0; i<6; i++){
+   materialArray[i].side= THREE.BackSide;
+ }
 
-let skyboxGeo = new THREE.BoxGeometry(10000,10000,10000);
+let skyboxGeo = new THREE.BoxGeometry(1000,1000,1000);
 let skybox = new THREE.Mesh(skyboxGeo, materialArray);
 scene.add(skybox);
+
+var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.3);
+scene.add(ambientLight);
 
 //ANIMATE
 function animate(time) {
