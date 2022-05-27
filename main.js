@@ -513,3 +513,5 @@ window.addEventListener('resize', function() {
 // GUI //
 gui.add(highlightMesh.scale, 'x', 1, 2.5);
 gui.add(highlightMesh.position, 'x', -5, 5);
+gui.add(highlightMesh.position, 'z', -5, 5);
+gui.add(camera.position.setSize,'Size', 0, 100);
