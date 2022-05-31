@@ -514,4 +514,6 @@ window.addEventListener('resize', function() {
 gui.add(highlightMesh.scale, 'x', 1, 2.5);
 gui.add(highlightMesh.position, 'x', -5, 5);
 gui.add(highlightMesh.position, 'z', -5, 5);
-gui.add(camera.position.setSize,'Size', 0, 100);
+/*gui.addColor(highlightMesh.material.color.getHex(),0,0.1 {
+  highlightMesh.material.color.setHex()
+});*/
