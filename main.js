@@ -62,11 +62,13 @@ const shipMaterial = new THREE.MeshMatcapMaterial({
 
 var material_floor = new THREE.MeshLambertMaterial();
 material_floor.shininess=100;
-material_floor.color= new THREE.Color(0x049ef4);
+//material_floor.color= new THREE.Color(0.2,0.2,1);
+var normal_map = new THREE.TextureLoader().load('img/normal.png');
+material_floor.normalMap=normal_map;
 
-var geometry_plane = new THREE.BoxGeometry(1000,1,1000);
+var geometry_plane = new THREE.BoxGeometry(1000,0.2,1000);
 var floorMesh= new THREE.Mesh(geometry_plane,material_floor);
-floorMesh.position.y-=10;
+floorMesh.position.y-=6;
 scene.add(floorMesh);
 
 // INVISIBLE PLANE + GRID
@@ -253,7 +255,7 @@ function battleshipDestroyer(){
 
     if(remainingArray[shipType] > 0){
         plyloader.load(
-            'models/battleship2.ply',
+            'models/battleship1.ply',
             function (geometry) {
                 geometry.computeVertexNormals();
                 const mesh = new THREE.Mesh(geometry, shipMaterial)
@@ -525,6 +527,7 @@ window.addEventListener('mousemove', function(e) {
         });
     }
 });
+
 
 // MOUSE CLICK EVENT
  window.addEventListener('mousedown', function() {
