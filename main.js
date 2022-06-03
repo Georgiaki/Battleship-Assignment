@@ -60,7 +60,14 @@ const shipMaterial = new THREE.MeshMatcapMaterial({
     //color: 0xff0033 p2
 });
 
+var material_floor = new THREE.MeshLambertMaterial();
+material_floor.shininess=100;
+material_floor.color= new THREE.Color(0x049ef4);
 
+var geometry_plane = new THREE.BoxGeometry(1000,1,1000);
+var floorMesh= new THREE.Mesh(geometry_plane,material_floor);
+floorMesh.position.y-=10;
+scene.add(floorMesh);
 
 // INVISIBLE PLANE + GRID
 const planeMesh = new THREE.Mesh( new THREE.PlaneGeometry(gridX, gridY),
@@ -144,7 +151,7 @@ function onDocumentKeyDown(e){
         }
         break;
 
-        case 13: // 
+        case 13: //
         privacyMesh.visible = false;
         console.log(P1placed);
         break;
@@ -460,7 +467,7 @@ window.addEventListener('mousemove', function(e) {
                         allowed = false;
                 }
             }
-    
+
             if(intersect.object.name === 'ground') {
                 const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
                 highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, 0, highlightPos.z+zoffset+rzoffset);
@@ -525,7 +532,7 @@ window.addEventListener('mousemove', function(e) {
          return (object.position.x === highlightMesh.position.x)
          && (object.position.z === highlightMesh.position.z)
      });
-     
+
      if (!placingtime){
         const placement = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1),
         new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
@@ -580,7 +587,7 @@ window.addEventListener('mousemove', function(e) {
                                         placement.name = 'placed2'
                                         P2placed.push(placed);
                                         P2ships.add(placement);
-                                        
+
                                     }else{
                                         placement.name = 'placed1'
                                         P1placed.push(placed);
@@ -610,8 +617,8 @@ window.addEventListener('mousemove', function(e) {
                         console.log(placement.position);
                         // scene.add(placement);
                         objects.push(placement);
-                        
-                        
+
+
                         if(playerTurn % 2 == 0){
                             //shipMaterial.color.set(0xff0033);
                             const shipMesh = loadedMesh.clone();
