@@ -1,8 +1,4 @@
-//import * as THREE from './js/three.js'
 import { GUI } from './js/dat.gui.module.js'
-//import {OrbitControls} from './js/OrbitControls.js'
-//import {Water} from './js/Water.js'
-//import {Sky} from './js/Sky.js'
 
 //GLOBAL CONSTS
 const gridX = 10;
@@ -14,7 +10,25 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 const sceneOrtho = new THREE.Scene(); // overlay scene
-const plyloader = new THREE.PLYLoader();
+var plyloader = new THREE.PLYLoader();
+plyloader = plyloader.load(
+    'models/battleship1.ply',
+    function (geometry) {
+        geometry.computeVertexNormals();
+        const mesh = new THREE.Mesh(geometry, shipMaterial)
+        mesh.scale.x = 0.03;
+        mesh.scale.y = 0.04;
+        mesh.scale.z = 0.03;
+        loadedMesh = mesh;
+    },
+    (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+    },
+    (error) => {
+        console.log(error)
+    }
+);
+
 const textureLoader = new THREE.TextureLoader();
 renderer.autoClear = false; // to allow overlay
 const gui = new GUI();
@@ -45,6 +59,7 @@ var rotationCount = 0;
 var check = 0;
 var allowed = true;
 var placingtime = true;
+var fired = false;
 var loadedMesh = new THREE.Mesh();
 var playerTurn = 1;
 var remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
@@ -59,6 +74,10 @@ const shipMaterial = new THREE.MeshMatcapMaterial({
     color: 0x004cff
     //color: 0xff0033 p2
 });
+
+// GEOMETRY 
+const hitmarker = new THREE.TorusGeometry(1, 2 , 25, 200);
+const missmarker = new THREE.TorusGeometry(1, 3 , 25, 3);
 
 var material_floor = new THREE.MeshLambertMaterial();
 material_floor.shininess=100;
@@ -88,6 +107,7 @@ let intersects;
 const highlightMesh = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1),
 new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
 highlightMesh.rotateX(-battleshipRotation);
+highlightMesh.translateY(0.5);
 scene.add(highlightMesh);
 
 //PRIVACY SCREEN
@@ -113,7 +133,7 @@ function onDocumentKeyDown(e){
             if (placingtime){
                 shipType = 0;
                 battleshipLength = 2;
-                battleshipDestroyer();
+                battleshipDestroyer();   
             }
         break;
 
@@ -141,77 +161,87 @@ function onDocumentKeyDown(e){
         }
         break;
 
-        case 57: // number '9' to confirm end turn
+        case 57: // number '9' to not end turn
             check = 0;
         break;
 
         case 48: // number '0' for next players placement turn
-        if(check == 0){
-            endTurn();
-        }else{
-            nextTurn();
-        }
+            if(check == 0){
+                checkTurn();
+            }else{
+                nextTurn();
+            }
         break;
 
         case 13: //
         privacyMesh.visible = false;
-        console.log(P1placed);
         break;
     }
 
 };
 
-// next players turn
-function endTurn(){
-    if(playerTurn % 2 == 0){
-        //player2
-        var count = [];
-        for (let i = 0; i < remainingArray.length; i++){
-            if(remainingArray[i] > 0){
-                count.push(i);
+
+// check end turn
+function checkTurn(){
+    if(placingtime){
+            if(playerTurn % 2 == 0){
+            //player2
+            var count = [];
+            for (let i = 0; i < remainingArray.length; i++){
+                if(remainingArray[i] > 0){
+                    count.push(i);
+                }
             }
-        }
-        if(count.length > 0){
-            console.log("Cannot end turn. Please place all ships. Ships remaining:");
-            for(let i = 0; i < count.length; i++){
-                count[i] = count[i] + 2;
-                console.log("Ship of length " + count[i]);
+            if(count.length > 0){
+                console.log("Cannot end turn. Please place all ships. Ships remaining:");
+                for(let i = 0; i < count.length; i++){
+                    count[i] = count[i] + 2;
+                    console.log("Ship of length " + count[i]);
+                }
+                console.log(count);
+            }else{
+                console.log("Are you sure you want to end your turn?");
+                console.log("Press 0 again to confirm the end of your turn, else press 9 to continue playing");
+                check++;
             }
-            console.log(count);
         }else{
-            console.log("Are you sure you want to end your turn?");
-            console.log("Press 0 again to confirm the end of your turn, else press 9 to continue playing");
-            check++;
+            //player1
+            var count = [];
+            for (let i = 0; i < remainingArray.length; i++){
+                if(remainingArray[i] > 0){
+                    count.push(i);
+                }
+            }
+            if(count.length > 0){
+                console.log("Cannot end turn. Please place all ships. Ships remaining:");
+                for(let i = 0; i < count.length; i++){
+                    count[i] = count[i] + 2;
+                    console.log("Ship of length " + count[i]);
+                }
+                console.log(count);
+            }else{
+                console.log("Are you sure you want to end your turn?");
+                console.log("Press 0 again to confirm the end of your turn, else press 9 to continue playing");
+                check++;
+            }
         }
     }else{
-        //player1
-        var count = [];
-        for (let i = 0; i < remainingArray.length; i++){
-            if(remainingArray[i] > 0){
-                count.push(i);
-            }
-        }
-        if(count.length > 0){
-            console.log("Cannot end turn. Please place all ships. Ships remaining:");
-            for(let i = 0; i < count.length; i++){
-                count[i] = count[i] + 2;
-                console.log("Ship of length " + count[i]);
-            }
-            console.log(count);
-        }else{
-            console.log("Are you sure you want to end your turn?");
-            console.log("Press 0 again to confirm the end of your turn, else press 9 to continue playing");
-            check++;
-        }
+        check++;
+        console.log("Are you sure you want to end your turn?");
+        console.log("Press 0 again to confirm the end of your turn, else press 9 to continue playing");
     }
+
 };
 
 function nextTurn(){
+    console.log(P1placed);
+    console.log(P2placed);
     check = 0;
     playerTurn++;
     P2ships.visible = false;
     P1ships.visible = false;
     privacyMesh.visible = true;
+    fired = false;
     remainingArray = [ship2remain, ship3remain, ship4remain, ship5remain];
     if (playerTurn > 2){
         placingtime = false;
@@ -237,9 +267,7 @@ function nextTurn(){
     console.log("Press enter when the next player is behind the screen and ready for their turn")
 };
 
-
-
-// 2 spaces long
+// DESTROYER = 2 spaces long
 function battleshipDestroyer(){
     xoffset = 0;
     zoffset = 0.5;
@@ -253,15 +281,16 @@ function battleshipDestroyer(){
         rzoffset = -0.5;
     }
 
+    const loader = new THREE.PLYLoader();
     if(remainingArray[shipType] > 0){
-        plyloader.load(
+        loader.load(
             'models/battleship1.ply',
             function (geometry) {
                 geometry.computeVertexNormals();
                 const mesh = new THREE.Mesh(geometry, shipMaterial)
-                mesh.scale.x = 0.07;
-                mesh.scale.y = 0.08;
-                mesh.scale.z = 0.08;
+                mesh.scale.x = 0.03;
+                mesh.scale.y = 0.04;
+                mesh.scale.z = 0.03;
                 loadedMesh = mesh;
             },
             (xhr) => {
@@ -303,6 +332,7 @@ function battleshipCruiser(){
                     mesh.scale.y = 0.08;
                     mesh.scale.z = 0.08;
                     loadedMesh = mesh;
+                    loadedMesh.position.set(loadedMesh.position.x+0.2, loadedMesh.position.y+0.2, loadedMesh.position.z+0.2);
                 },
                 (xhr) => {
                     console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
@@ -520,11 +550,15 @@ window.addEventListener('mousemove', function(e) {
     }else{
         intersects.forEach(function(intersect) {
             if(intersect.object.name === 'ground') {
-            const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
-            highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, 0, highlightPos.z+zoffset+rzoffset);
-            highlightMesh.material.color.setHex(0xFFFFFF);
-            }
-        });
+                const highlightPos = new THREE.Vector3().copy(intersect.point).floor();
+                highlightMesh.position.set(highlightPos.x+xoffset+rxoffset, 0, highlightPos.z+zoffset+rzoffset);
+                highlightMesh.material.color.setHex(0xFFFFFF);
+                const objectExist = objects.find(function(object) {
+                return (object.position.x === highlightMesh.position.x)
+                        && (object.position.z === highlightMesh.position.z)
+                });
+        }
+    });
     }
 });
 
@@ -535,38 +569,6 @@ window.addEventListener('mousemove', function(e) {
          return (object.position.x === highlightMesh.position.x)
          && (object.position.z === highlightMesh.position.z)
      });
-
-     if (!placingtime){
-        const placement = new THREE.Mesh( new THREE.PlaneGeometry(battleshipLength, 1),
-        new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));
-        placement.position.copy(highlightMesh.position);
-        placement.rotation.copy(highlightMesh.rotation);
-        placement.rotation.y = battleshipRotation;
-        placement.rotateX(-battleshipRotation);
-        placement.material.color.setHex(0x808080);
-        const selection = new THREE.Vector3(placement.position);
-            if(playerTurn % 2 == 0){
-                //player2
-                for(let i = 0; i < P1placed.length; i++){
-                    if (selection == P1placed[i]){
-                        console.log("hit")
-                        placement.material.color.setHex(0xFFD700);
-                    }
-                    P2ships.add(placement);
-                    scene.add(P2ships);
-                }
-            }else{
-                //player1
-                for(let i = 0; i < P2placed.length; i++){
-                    if (selection == P2placed[i]){
-                        console.log("hit")
-                        placement.material.color.setHex(0xFFD700);
-                    }
-                    P1ships.add(placement);
-                    scene.add(P1ships);
-                }
-            };
-        };
 
     if(!objectExist) {
         intersects.forEach(function(intersect) {
@@ -617,9 +619,11 @@ window.addEventListener('mousemove', function(e) {
                         }
 
                         console.log(placed);
-                        console.log(placement.position);
+                        //console.log(placement.position);
                         // scene.add(placement);
                         objects.push(placement);
+                        placement.translateZ(-0.001);
+
 
 
                         if(playerTurn % 2 == 0){
@@ -627,7 +631,7 @@ window.addEventListener('mousemove', function(e) {
                             const shipMesh = loadedMesh.clone();
                             //shipMesh.material.color.set(0xff0033);
                             shipMesh.name = 'player2'
-                            console.log("player2");
+                            //console.log("player2");
                             shipMesh.position.set(placement.position.x,0.07,placement.position.z);
                             shipMesh.rotation.y = battleshipRotation;
                             P2ships.add(shipMesh);
@@ -661,6 +665,83 @@ window.addEventListener('mousemove', function(e) {
 
                 }
         };
+
+        if(!placingtime){
+            if(!fired){
+                if(playerTurn % 2 == 0){
+                        if(intersect.object.name === 'placed1') {
+                            const hitp2 = new THREE.Mesh( hitmarker,
+                            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));        
+                            hitp2.material.color.setHex(0x39FF14);
+                            hitp2.position.copy(highlightMesh.position);
+                            hitp2.rotation.copy(highlightMesh.rotation);
+                            hitp2.rotation.y = battleshipRotation;
+                            hitp2.rotateX(-battleshipRotation);
+                            hitp2.scale.x = 0.1;
+                            hitp2.scale.y = 0.1;
+                            hitp2.scale.z = 0.1;
+
+                            P2ships.add(hitp2);
+                            scene.add(P2ships);                        
+                        }
+
+                        if(intersect.object.name !== 'placed1') {
+                            const missp2 = new THREE.Mesh(missmarker,
+                            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true})); 
+                            missp2.material.color.setHex(0x808080);
+                            missp2.position.copy(highlightMesh.position);
+                            missp2.rotation.copy(highlightMesh.rotation);
+                            missp2.rotation.y = battleshipRotation;
+                            missp2.rotateX(-battleshipRotation);
+                            missp2.scale.x = 0.1;
+                            missp2.scale.y = 0.1;
+                            missp2.scale.z = 0.1;
+
+                            P2ships.add(missp2);
+                            scene.add(P2ships);
+                        }
+
+                    }else{
+                        if(intersect.object.name === 'player2') {
+                            const hitp1 = new THREE.Mesh( hitmarker,
+                            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true}));        
+                            hitp1.material.color.setHex(0x39FF14);
+                            hitp1.position.copy(highlightMesh.position);
+                            hitp1.rotation.copy(highlightMesh.rotation);
+                            hitp1.rotation.y = battleshipRotation;
+                            hitp1.rotateX(-battleshipRotation);
+                            hitp1.scale.x = 0.1;
+                            hitp1.scale.y = 0.1;
+                            hitp1.scale.z = 0.1;
+
+                            P1ships.add(hitp1);
+                            scene.add(P1ships);
+
+                        }
+                        if(intersect.object.name === 'player2') {
+                            const missp1 = new THREE.Mesh(missmarker,
+                            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true})); 
+                            missp1.material.color.setHex(0x808080);
+                            missp1.position.copy(highlightMesh.position);
+                            missp1.rotation.copy(highlightMesh.rotation);
+                            missp1.rotation.y = battleshipRotation;
+                            missp1.rotateX(-battleshipRotation);
+                            missp1.scale.x = 0.1;
+                            missp1.scale.y = 0.1;
+                            missp1.scale.z = 0.1;
+
+                            P1ships.add(missp1);
+                            scene.add(P1ships);
+                        }
+                    }
+                    fired = true;
+                    setTimeout(function(){ 
+
+                        nextTurn();
+                    }, 3000);
+            }
+ 
+        }
     });   //console.log(scene.children.length);
 };
 });
